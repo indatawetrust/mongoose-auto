@@ -68,7 +68,25 @@ const prompt = new Confirm('destination is not empty, continue?');
 
   const collection = muri(uri).db;
 
-  const client = await MongoClient.connect(uri);
+  let client = null
+  
+  try {
+    client = await new Promise((resolve, reject) => {
+      MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+        
+        if (err) {
+          log(chalk.red(err))
+          process.exit()
+        } else {
+          resolve(db)
+        }
+
+      });
+    })
+  } catch (e) {
+    log(chalk.red(err))
+    process.exit()
+  }
 
   const db = client.db(collection);
 
